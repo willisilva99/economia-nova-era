@@ -35,7 +35,7 @@ conn.commit()
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS inventario (
     user_id BIGINT PRIMARY KEY,
-    armas TEXT DEFAULT '[]'
+    armas TEXT[] DEFAULT '{}'
 );
 ''')
 conn.commit()
@@ -80,31 +80,33 @@ def update_banco(user_id, valor):
 def adicionar_item(user_id, item):
     cursor.execute("SELECT armas FROM inventario WHERE user_id = %s", (user_id,))
     result = cursor.fetchone()
+    
     if result:
-        # Adiciona item ao inventário
-        armas = eval(result[0])  # Converte de string para lista
+        # Adiciona o item ao inventário
+        armas = result[0]  # Aqui, armas já é um array se a tabela foi atualizada
         armas.append(item)
-        cursor.execute("UPDATE inventario SET armas = %s WHERE user_id = %s", (str(armas), user_id))
+        cursor.execute("UPDATE inventario SET armas = %s WHERE user_id = %s", (armas, user_id))
     else:
         # Cria um novo inventário
-        cursor.execute("INSERT INTO inventario (user_id, armas) VALUES (%s, %s)", (user_id, str([item])))
+        cursor.execute("INSERT INTO inventario (user_id, armas) VALUES (%s, %s)", (user_id, [item]))
     conn.commit()
 
 # Função para obter o inventário do usuário
 def obter_inventario(user_id):
     cursor.execute("SELECT armas FROM inventario WHERE user_id = %s", (user_id,))
     result = cursor.fetchone()
-    return eval(result[0]) if result else []
+    return result[0] if result else []
 
 # Funções de investimento
 def obter_investimentos(user_id):
-    # Retorna o total de investimentos para o usuário
-    # Aqui você pode implementar uma lógica para armazenar e obter investimentos
-    pass
+    cursor.execute("SELECT valor FROM investimentos WHERE user_id = %s", (user_id,))
+    result = cursor.fetchall()
+    total_investido = sum(investo[0] for investo in result) if result else 0
+    return total_investido
 
 def adicionar_investimento(user_id, valor):
-    # Aqui você pode implementar a lógica para adicionar um investimento
-    pass
+    cursor.execute("INSERT INTO investimentos (user_id, valor) VALUES (%s, %s)", (user_id, valor))
+    conn.commit()
 
 # Fechar a conexão ao banco de dados quando o bot encerrar
 def close_connection():
