@@ -26,7 +26,9 @@ cursor.execute('''
 CREATE TABLE IF NOT EXISTS usuarios (
     id BIGINT PRIMARY KEY,
     saldo INTEGER DEFAULT 0,
-    banco INTEGER DEFAULT 0
+    banco INTEGER DEFAULT 0,
+    xp INTEGER DEFAULT 0,  -- Adiciona coluna para XP
+    nivel INTEGER DEFAULT 0  -- Adiciona coluna para o nível
 );
 ''')
 conn.commit()
@@ -40,12 +42,22 @@ CREATE TABLE IF NOT EXISTS inventario (
 ''')
 conn.commit()
 
+# Cria a tabela de investimentos se não existir
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS investimentos (
+    user_id BIGINT,
+    valor INTEGER,
+    PRIMARY KEY (user_id, valor)
+);
+''')
+conn.commit()
+
 # Função para obter o saldo principal
 def get_saldo(user_id):
     cursor.execute("SELECT saldo FROM usuarios WHERE id = %s", (user_id,))
     result = cursor.fetchone()
     if result is None:
-        cursor.execute("INSERT INTO usuarios (id, saldo, banco) VALUES (%s, 0, 0)", (user_id,))
+        cursor.execute("INSERT INTO usuarios (id, saldo, banco, xp, nivel) VALUES (%s, 0, 0, 0, 0)", (user_id,))
         conn.commit()
         return 0
     return result[0]
@@ -63,7 +75,7 @@ def get_banco(user_id):
     cursor.execute("SELECT banco FROM usuarios WHERE id = %s", (user_id,))
     result = cursor.fetchone()
     if result is None:
-        cursor.execute("INSERT INTO usuarios (id, saldo, banco) VALUES (%s, 0, 0)", (user_id,))
+        cursor.execute("INSERT INTO usuarios (id, saldo, banco, xp, nivel) VALUES (%s, 0, 0, 0, 0)", (user_id,))
         conn.commit()
         return 0
     return result[0]
@@ -107,6 +119,16 @@ def obter_investimentos(user_id):
 def adicionar_investimento(user_id, valor):
     cursor.execute("INSERT INTO investimentos (user_id, valor) VALUES (%s, %s)", (user_id, valor))
     conn.commit()
+
+# Funções de XP e Nível
+def adicionar_xp(user_id, valor):
+    cursor.execute("UPDATE usuarios SET xp = xp + %s WHERE id = %s", (valor, user_id))
+    conn.commit()
+
+def get_xp(user_id):
+    cursor.execute("SELECT xp FROM usuarios WHERE id = %s", (user_id,))
+    result = cursor.fetchone()
+    return result[0] if result else 0
 
 # Fechar a conexão ao banco de dados quando o bot encerrar
 def close_connection():
