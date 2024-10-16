@@ -2,9 +2,15 @@ import discord
 from discord.ext import commands
 import os
 import random
+from dotenv import load_dotenv
 
-# Configuração do prefixo do bot
-bot = commands.Bot(command_prefix="!!")
+# Carregar variáveis de ambiente do arquivo .env
+load_dotenv()
+
+# Configuração de intents e do prefixo do bot
+intents = discord.Intents.default()
+intents.members = True  # Ativando intents para acessar informações de membros
+bot = commands.Bot(command_prefix="!!", intents=intents)
 
 # Lista de cogs que vamos carregar
 cogs = [
@@ -33,7 +39,7 @@ async def on_ready():
 
 @bot.command(name="status")
 async def status(ctx):
-    total_users = len(bot.users)  # Número total de usuários
+    total_users = len(set(bot.get_all_members()))  # Número total de usuários únicos
     await ctx.send(f"🤖 **Status do Bot:**\n"
                    f"Estou online e pronto para ajudar!\n"
                    f"Número total de usuários: {total_users}")
