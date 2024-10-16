@@ -54,7 +54,8 @@ class Trabalho(commands.Cog):
 
         inventario = obter_inventario(ctx.author.id)
         if not any(item in inventario for item in self.ferramentas_roubo):
-            await ctx.send(f"{ctx.author.mention}, você precisa de uma ferramenta de roubo para tentar roubar!")
+            ferramentas = ", ".join(self.ferramentas_roubo)
+            await ctx.send(f"{ctx.author.mention}, você precisa de uma das seguintes ferramentas de roubo para tentar roubar: {ferramentas}.")
             return
 
         sucesso = random.choice([True, False])
