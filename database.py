@@ -106,8 +106,22 @@ def get_xp(user_id):
     result = cursor.fetchone()
     return result[0] if result else 0
 
-# Funções para gerenciar inventário, missões, loot e habilidades
-# (As funções que você já tinha implementadas continuam aqui)
+# Função para obter o banco de um usuário
+def get_banco(user_id):
+    cursor.execute("SELECT banco FROM usuarios WHERE id = %s", (user_id,))
+    result = cursor.fetchone()
+    return result[0] if result else 0
+
+# Função para obter inventário de um usuário
+def obter_inventario(user_id):
+    cursor.execute("SELECT armas FROM inventario WHERE user_id = %s", (user_id,))
+    result = cursor.fetchone()
+    return result[0] if result else []
+
+# Função para adicionar um item ao inventário de um usuário
+def adicionar_item(user_id, item):
+    cursor.execute("UPDATE inventario SET armas = array_append(armas, %s) WHERE user_id = %s", (item, user_id))
+    conn.commit()
 
 # Fechar a conexão ao banco de dados quando o bot encerrar
 def close_connection():
