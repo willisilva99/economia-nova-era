@@ -7,7 +7,18 @@ import random
 bot = commands.Bot(command_prefix="!!")
 
 # Lista de cogs que vamos carregar
-cogs = ["trabalho", "investimento", "saldo", "banco", "loja", "boss", "inventario"]
+cogs = [
+    "trabalho",        # Sistema de trabalho
+    "investimento",    # Sistema de investimento
+    "saldo",           # Sistema de saldo
+    "banco",           # Sistema bancário
+    "loja",            # Sistema de loja
+    "boss",            # Sistema de bosses
+    "inventario",      # Sistema de inventário
+    "nivel",           # Sistema de níveis e XP
+    "missao",          # Sistema de missões diárias (se você tiver em um arquivo separado)
+]
+
 
 # Carregar cada cog
 for cog in cogs:
@@ -55,11 +66,43 @@ async def ajuda(ctx):
         "🚫 cancelar_investimento": "!!cancelar_investimento - Cancele seu investimento e recupere parte do valor.",
         "👾 ver_bosses": "!!ver_bosses - Veja todos os bosses disponíveis para lutar.",
         "🔍 ver_inventario": "!!ver_inventario - Veja os itens que você possui.",
-        "👹 lutar_boss": "!!lutar_boss <nome_boss> - Lute contra um boss (ex: !!lutar_boss Zumbi Gigante, !!lutar_boss Mestre dos Zumbis)."
+        "👹 lutar_boss": "!!lutar_boss <nome_boss> - Lute contra um boss (ex: !!lutar_boss Zumbi Gigante, !!lutar_boss Mestre dos Zumbis).",
+        "🗺️ missao": "!!missao - Receba uma missão diária para completar.",
+        "💡 dica": "!!dica - Obtenha uma dica sobre sobrevivência.",
+        "🏃 fuga": "!!fuga - Tente escapar de uma situação de perigo."
     }
 
     resposta = "🆘 **Comandos disponíveis:**\n" + "\n".join([f"{cmd}: {desc}" for cmd, desc in comandos.items()])
     await ctx.send(resposta)
+
+@bot.command(name="missao")
+async def missao(ctx):
+    missoes = [
+        "Ajude um sobrevivente a encontrar suprimentos!",
+        "Derrote 5 zumbis em sua área!",
+        "Colete recursos de uma loja abandonada!",
+        "Proteja um abrigo contra ataques de zumbis!"
+    ]
+    missao_selecionada = random.choice(missoes)
+    await ctx.send(f"🎯 **Nova missão:** {missao_selecionada}")
+
+@bot.command(name="dica")
+async def dica(ctx):
+    dicas = [
+        "Sempre esteja atento aos sons ao seu redor; eles podem indicar a presença de zumbis.",
+        "Tenha sempre uma arma de fogo em mãos, pois pode ser sua última defesa.",
+        "A comunicação com outros sobreviventes é essencial; nunca ande sozinho.",
+        "Explore áreas seguras antes de se aventurar em locais desconhecidos."
+    ]
+    await ctx.send(f"💡 Dica: {random.choice(dicas)}")
+
+@bot.command(name="fuga")
+async def fuga(ctx):
+    sucesso = random.choice([True, False])
+    if sucesso:
+        await ctx.send(f"🏃‍♂️ {ctx.author.mention}, você conseguiu escapar com sucesso de uma situação perigosa!")
+    else:
+        await ctx.send(f"😱 {ctx.author.mention}, você falhou ao tentar escapar! Um zumbi apareceu!")
 
 @bot.command(name="ver_bosses")
 async def ver_bosses(ctx):
