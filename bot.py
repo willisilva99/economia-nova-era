@@ -42,21 +42,40 @@ async def evento(ctx):
 @bot.command(name="ajuda")
 async def ajuda(ctx):
     comandos = {
-        "trabalho": "!!trabalho - Trabalhe para ganhar moedas.",
-        "comprar": "!!comprar <arma> - Compre uma arma na loja.",
-        "roubar": "!!roubar @membro - Tente roubar moedas de outro jogador.",
-        "status": "!!status - Veja o status do bot.",
-        "evento": "!!evento - Desencadeie um evento aleatório.",
-        "ajuda": "!!ajuda - Liste todos os comandos disponíveis.",
-        "historia": "!!historia - Ouça uma parte da narrativa do apocalipse.",
-        "listar_armas": "!!listar_armas - Veja a lista de armas disponíveis na loja.",
-        "investir": "!!investir <valor> - Invista seu saldo e tenha chance de ganhar ou perder dinheiro.",
-        "ver_investimentos": "!!ver_investimentos - Veja o total investido.",
-        "cancelar_investimento": "!!cancelar_investimento - Cancele seu investimento e recupere parte do valor."
+        "🛠️ trabalho": "!!trabalho - Trabalhe para ganhar moedas.",
+        "🛒 comprar": "!!comprar <arma> - Compre uma arma na loja.",
+        "💰 roubar": "!!roubar @membro - Tente roubar moedas de outro jogador.",
+        "📊 status": "!!status - Veja o status do bot.",
+        "🎲 evento": "!!evento - Desencadeie um evento aleatório.",
+        "❓ ajuda": "!!ajuda - Liste todos os comandos disponíveis.",
+        "📖 historia": "!!historia - Ouça uma parte da narrativa do apocalipse.",
+        "⚔️ listar_armas": "!!listar_armas - Veja a lista de armas disponíveis na loja.",
+        "📈 investir": "!!investir <valor> - Invista seu saldo e tenha chance de ganhar ou perder dinheiro.",
+        "📊 ver_investimentos": "!!ver_investimentos - Veja o total investido.",
+        "🚫 cancelar_investimento": "!!cancelar_investimento - Cancele seu investimento e recupere parte do valor.",
+        "👾 ver_bosses": "!!ver_bosses - Veja todos os bosses disponíveis para lutar.",
+        "🔍 ver_inventario": "!!ver_inventario - Veja os itens que você possui.",
+        "👹 lutar_boss": "!!lutar_boss <nome_boss> - Lute contra um boss (ex: !!lutar_boss Zumbi Gigante, !!lutar_boss Mestre dos Zumbis)."
     }
 
     resposta = "🆘 **Comandos disponíveis:**\n" + "\n".join([f"{cmd}: {desc}" for cmd, desc in comandos.items()])
     await ctx.send(resposta)
+
+@bot.command(name="ver_bosses")
+async def ver_bosses(ctx):
+    bosses = [
+        "Zumbi Mutante",
+        "Chefe Zumbi",
+        "Líder do Culto",
+        "Criatura das Sombras",
+        "Andarilho Enlouquecido",
+        "Esqueleto Vingador",
+        "Mutante de Ferro",
+        "Mestre dos Zumbis",  # Boss adicionado
+        "Zumbi Gigante",  # Boss adicionado
+        "Fantasma Errante"
+    ]
+    await ctx.send(f"👹 **Bosses disponíveis para lutar:**\n" + "\n".join(bosses))
 
 @bot.command(name="historia")
 async def historia(ctx):
