@@ -16,9 +16,8 @@ cogs = [
     "boss",            # Sistema de bosses
     "inventario",      # Sistema de inventário
     "nivel",           # Sistema de níveis e XP
-    "missao",          # Sistema de missões diárias (se você tiver em um arquivo separado)
+    "missao",          # Sistema de missões diárias
 ]
-
 
 # Carregar cada cog
 for cog in cogs:
@@ -74,61 +73,6 @@ async def ajuda(ctx):
 
     resposta = "🆘 **Comandos disponíveis:**\n" + "\n".join([f"{cmd}: {desc}" for cmd, desc in comandos.items()])
     await ctx.send(resposta)
-
-@bot.command(name="missao")
-async def missao(ctx):
-    missoes = [
-        "Ajude um sobrevivente a encontrar suprimentos!",
-        "Derrote 5 zumbis em sua área!",
-        "Colete recursos de uma loja abandonada!",
-        "Proteja um abrigo contra ataques de zumbis!"
-    ]
-    missao_selecionada = random.choice(missoes)
-    await ctx.send(f"🎯 **Nova missão:** {missao_selecionada}")
-
-@bot.command(name="dica")
-async def dica(ctx):
-    dicas = [
-        "Sempre esteja atento aos sons ao seu redor; eles podem indicar a presença de zumbis.",
-        "Tenha sempre uma arma de fogo em mãos, pois pode ser sua última defesa.",
-        "A comunicação com outros sobreviventes é essencial; nunca ande sozinho.",
-        "Explore áreas seguras antes de se aventurar em locais desconhecidos."
-    ]
-    await ctx.send(f"💡 Dica: {random.choice(dicas)}")
-
-@bot.command(name="fuga")
-async def fuga(ctx):
-    sucesso = random.choice([True, False])
-    if sucesso:
-        await ctx.send(f"🏃‍♂️ {ctx.author.mention}, você conseguiu escapar com sucesso de uma situação perigosa!")
-    else:
-        await ctx.send(f"😱 {ctx.author.mention}, você falhou ao tentar escapar! Um zumbi apareceu!")
-
-@bot.command(name="ver_bosses")
-async def ver_bosses(ctx):
-    bosses = [
-        "Zumbi Mutante",
-        "Chefe Zumbi",
-        "Líder do Culto",
-        "Criatura das Sombras",
-        "Andarilho Enlouquecido",
-        "Esqueleto Vingador",
-        "Mutante de Ferro",
-        "Mestre dos Zumbis",  # Boss adicionado
-        "Zumbi Gigante",  # Boss adicionado
-        "Fantasma Errante"
-    ]
-    await ctx.send(f"👹 **Bosses disponíveis para lutar:**\n" + "\n".join(bosses))
-
-@bot.command(name="historia")
-async def historia(ctx):
-    narrativas = [
-        "O mundo mudou quando o vírus começou a se espalhar. O que era uma doença comum tornou-se uma ameaça global.",
-        "Os sobreviventes se reúnem em comunidades, mas a desconfiança é alta. Cada um luta para se manter vivo.",
-        "Rumores falam de um grupo que está tentando encontrar uma cura, mas muitos acreditam que é apenas uma farsa.",
-        "Os zumbis não são mais a única ameaça. Outros sobreviventes se tornaram predadores em busca de recursos."
-    ]
-    await ctx.send(random.choice(narrativas))
 
 # Executar o bot
 TOKEN = os.getenv('TOKEN')
