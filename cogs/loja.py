@@ -22,17 +22,20 @@ class Loja(commands.Cog):
 
     @commands.command(name="comprar")
     async def comprar(self, ctx, nome_arma: str):
+        # Verifica se a arma está na lista de armas disponíveis
         if nome_arma not in self.armas:
             await ctx.send(f"{ctx.author.mention}, essa arma não está disponível na loja.")
             return
         
         preco = self.armas[nome_arma]
-        saldo = get_saldo(ctx.author.id)
+        saldo = get_saldo(ctx.author.id)  # Obtém o saldo do usuário
 
+        # Verifica se o saldo é suficiente para a compra
         if saldo < preco:
             await ctx.send(f"{ctx.author.mention}, você não tem saldo suficiente para comprar {nome_arma}!")
             return
 
+        # Atualiza o saldo e adiciona a arma ao inventário
         update_saldo(ctx.author.id, -preco)
         adicionar_item(ctx.author.id, nome_arma)
         await ctx.send(f"{ctx.author.mention}, você comprou uma {nome_arma} por {preco} moedas!")
