@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import random
-from database import update_saldo, get_saldo, obter_inventario, adicionar_item
+from database import update_saldo, get_saldo, obter_inventario, adicionar_item, adicionar_xp  # Importe a função para adicionar XP
 
 class Trabalho(commands.Cog):
     def __init__(self, bot):
@@ -23,8 +23,11 @@ class Trabalho(commands.Cog):
         salario = trabalho_selecionado["salario"]
         tipo = trabalho_selecionado["tipo"]
 
-        evento = random.choice([
-            None,
+        # Ganha XP ao trabalhar
+        xp_ganho = random.randint(15, 30)  # XP ganho ao trabalhar
+        adicionar_xp(ctx.author.id, xp_ganho)  # Atualiza a XP do usuário no banco de dados
+
+        evento = random.choice([None,
             "Você encontrou um suprimento extra!",
             "Um grupo de zumbis tentou atacá-lo, mas você conseguiu se defender!",
             "Você se machucou durante a caça e perdeu algumas moedas.",
