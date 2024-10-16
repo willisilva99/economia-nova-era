@@ -1,51 +1,57 @@
-import sqlite3
+import os
+import psycopg2
+from urllib.parse import urlparse
 
-# Conecta ao banco de dados (ou cria se não existir)
-conn = sqlite3.connect('economia.db')
+# Conectar ao banco de dados PostgreSQL usando a variável de ambiente
+url = urlparse(os.getenv("DATABASE_URL"))
+
+conn = psycopg2.connect(
+    dbname=url.path[1:],
+    user=url.username,
+    password=url.password,
+    host=url.hostname,
+    port=url.port
+)
 cursor = conn.cursor()
 
-# Cria a tabela de usuários com saldo e banco, se não existir
+# Criar a tabela se não existir
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS usuarios (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     saldo INTEGER DEFAULT 0,
     banco INTEGER DEFAULT 0
 )
 ''')
 conn.commit()
 
-# Função para obter o saldo principal
 def get_saldo(user_id):
-    cursor.execute("SELECT saldo FROM usuarios WHERE id = ?", (user_id,))
+    cursor.execute("SELECT saldo FROM usuarios WHERE id = %s", (user_id,))
     result = cursor.fetchone()
     if result is None:
-        cursor.execute("INSERT INTO usuarios (id, saldo, banco) VALUES (?, 0, 0)", (user_id,))
+        cursor.execute("INSERT INTO usuarios (id, saldo, banco) VALUES (%s, 0, 0)", (user_id,))
         conn.commit()
         return 0
     return result[0]
 
-# Função para obter o saldo bancário
-def get_banco(user_id):
-    cursor.execute("SELECT banco FROM usuarios WHERE id = ?", (user_id,))
-    result = cursor.fetchone()
-    if result is None:
-        cursor.execute("INSERT INTO usuarios (id, saldo, banco) VALUES (?, 0, 0)", (user_id,))
-        conn.commit()
-        return 0
-    return result[0]
-
-# Função para atualizar o saldo principal
 def update_saldo(user_id, valor):
     saldo_atual = get_saldo(user_id)
     novo_saldo = saldo_atual + valor
-    cursor.execute("UPDATE usuarios SET saldo = ? WHERE id = ?", (novo_saldo, user_id))
+    cursor.execute("UPDATE usuarios SET saldo = %s WHERE id = %s", (novo_saldo, user_id))
     conn.commit()
     return novo_saldo
 
-# Função para atualizar o saldo bancário
+def get_banco(user_id):
+    cursor.execute("SELECT banco FROM usuarios WHERE id = %s", (user_id,))
+    result = cursor.fetchone()
+    if result is None:
+        cursor.execute("INSERT INTO usuarios (id, saldo, banco) VALUES (%s, 0, 0)", (user_id,))
+        conn.commit()
+        return 0
+    return result[0]
+
 def update_banco(user_id, valor):
     banco_atual = get_banco(user_id)
     novo_banco = banco_atual + valor
-    cursor.execute("UPDATE usuarios SET banco = ? WHERE id = ?", (novo_banco, user_id))
+    cursor.execute("UPDATE usuarios SET banco = %s WHERE id = %s", (novo_banco, user_id))
     conn.commit()
     return novo_banco
