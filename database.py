@@ -52,6 +52,40 @@ CREATE TABLE IF NOT EXISTS investimentos (
 ''')
 conn.commit()
 
+# Cria a tabela de missões se não existir
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS missoes (
+    id SERIAL PRIMARY KEY,
+    descricao TEXT NOT NULL,
+    arma_requerida TEXT,
+    recompensa INTEGER NOT NULL
+);
+''')
+conn.commit()
+
+# Cria a tabela de loot se não existir
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS loot (
+    id SERIAL PRIMARY KEY,
+    user_id BIGINT,
+    item TEXT,
+    quantidade INTEGER,
+    data TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+''')
+conn.commit()
+
+# Cria a tabela de habilidades se não existir
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS habilidades (
+    user_id BIGINT PRIMARY KEY,
+    combate INTEGER DEFAULT 0,
+    coleta INTEGER DEFAULT 0,
+    exploracao INTEGER DEFAULT 0
+);
+''')
+conn.commit()
+
 # Função para obter o saldo principal
 def get_saldo(user_id):
     cursor.execute("SELECT saldo FROM usuarios WHERE id = %s", (user_id,))
@@ -129,6 +163,39 @@ def get_xp(user_id):
     cursor.execute("SELECT xp FROM usuarios WHERE id = %s", (user_id,))
     result = cursor.fetchone()
     return result[0] if result else 0
+
+# Funções para gerenciar missões
+def adicionar_missao(descricao, arma_requerida, recompensa):
+    cursor.execute("INSERT INTO missoes (descricao, arma_requerida, recompensa) VALUES (%s, %s, %s)", (descricao, arma_requerida, recompensa))
+    conn.commit()
+
+def listar_missoes():
+    cursor.execute("SELECT * FROM missoes")
+    return cursor.fetchall()
+
+# Funções para gerenciar loot
+def adicionar_loot(user_id, item, quantidade):
+    cursor.execute("INSERT INTO loot (user_id, item, quantidade) VALUES (%s, %s, %s)", (user_id, item, quantidade))
+    conn.commit()
+
+def listar_loot(user_id):
+    cursor.execute("SELECT item, quantidade FROM loot WHERE user_id = %s", (user_id,))
+    return cursor.fetchall()
+
+# Funções para gerenciar habilidades
+def atualizar_habilidades(user_id, combate=None, coleta=None, exploracao=None):
+    if combate is not None:
+        cursor.execute("UPDATE habilidades SET combate = combate + %s WHERE user_id = %s", (combate, user_id))
+    if coleta is not None:
+        cursor.execute("UPDATE habilidades SET coleta = coleta + %s WHERE user_id = %s", (coleta, user_id))
+    if exploracao is not None:
+        cursor.execute("UPDATE habilidades SET exploracao = exploracao + %s WHERE user_id = %s", (exploracao, user_id))
+    conn.commit()
+
+def obter_habilidades(user_id):
+    cursor.execute("SELECT combate, coleta, exploracao FROM habilidades WHERE user_id = %s", (user_id,))
+    result = cursor.fetchone()
+    return result if result else (0, 0, 0)  # Retorna 0 para todas as habilidades se não encontrado
 
 # Fechar a conexão ao banco de dados quando o bot encerrar
 def close_connection():
