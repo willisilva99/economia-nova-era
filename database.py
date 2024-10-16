@@ -14,7 +14,7 @@ conn = psycopg2.connect(
 )
 cursor = conn.cursor()
 
-# Criar a tabela se não existir
+# Cria a tabela de usuários se não existir
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS usuarios (
     id SERIAL PRIMARY KEY,
@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
 ''')
 conn.commit()
 
+# Função para obter o saldo principal
 def get_saldo(user_id):
     cursor.execute("SELECT saldo FROM usuarios WHERE id = %s", (user_id,))
     result = cursor.fetchone()
@@ -33,6 +34,7 @@ def get_saldo(user_id):
         return 0
     return result[0]
 
+# Função para atualizar o saldo principal
 def update_saldo(user_id, valor):
     saldo_atual = get_saldo(user_id)
     novo_saldo = saldo_atual + valor
@@ -40,6 +42,7 @@ def update_saldo(user_id, valor):
     conn.commit()
     return novo_saldo
 
+# Função para obter o saldo bancário
 def get_banco(user_id):
     cursor.execute("SELECT banco FROM usuarios WHERE id = %s", (user_id,))
     result = cursor.fetchone()
@@ -49,6 +52,7 @@ def get_banco(user_id):
         return 0
     return result[0]
 
+# Função para atualizar o saldo bancário
 def update_banco(user_id, valor):
     banco_atual = get_banco(user_id)
     novo_banco = banco_atual + valor
