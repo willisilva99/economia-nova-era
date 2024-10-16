@@ -1,8 +1,10 @@
 # loja.py
+from discord.ext import commands
 from database import update_saldo, adicionar_item
 
-class Loja:
-    def __init__(self):
+class Loja(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
         self.armas = {
             "Espada Enferrujada": 150,
             "Arco e Flecha": 200,
@@ -13,9 +15,12 @@ class Loja:
             "Clava de Ferro": 350,
         }
 
-    def listar_armas(self):
-        return "\n".join([f"{arma}: {preco} moedas" for arma, preco in self.armas.items()])
+    @commands.command(name="listar_armas")
+    async def listar_armas(self, ctx):
+        lista_armas = "\n".join([f"{arma}: {preco} moedas" for arma, preco in self.armas.items()])
+        await ctx.send(f"🛒 **Armas disponíveis na loja:**\n{lista_armas}")
 
+    @commands.command(name="comprar")
     async def comprar(self, ctx, nome_arma: str):
         if nome_arma not in self.armas:
             await ctx.send(f"{ctx.author.mention}, essa arma não está disponível na loja.")
@@ -28,6 +33,6 @@ class Loja:
             await ctx.send(f"{ctx.author.mention}, você não tem saldo suficiente para comprar {nome_arma}!")
             return
 
-        update_saldo(ctx.author.id, -preco)
-        adicionar_item(ctx.author.id, nome_arma)
+        update_saldo(ctx.author.id, -preco)  # Deduz o preço do saldo
+        adicionar_item(ctx.author.id, nome_arma)  # Adiciona a arma ao inventário
         await ctx.send(f"{ctx.author.mention}, você comprou uma {nome_arma} por {preco} moedas!")
