@@ -14,6 +14,13 @@ conn = psycopg2.connect(
 )
 cursor = conn.cursor()
 
+# Função para verificar e adicionar colunas ausentes na tabela "usuarios"
+def ensure_column_exists(table_name, column_name, column_type, default_value):
+    cursor.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name=%s AND column_name=%s", (table_name, column_name))
+    if not cursor.fetchone():
+        cursor.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type} DEFAULT {default_value}")
+        conn.commit()
+
 # Cria a tabela de usuários se não existir
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS usuarios (
@@ -25,6 +32,12 @@ CREATE TABLE IF NOT EXISTS usuarios (
 );
 ''')
 conn.commit()
+
+# Verifique e adicione as colunas que possam estar faltando na tabela 'usuarios'
+ensure_column_exists("usuarios", "saldo", "INTEGER", 0)
+ensure_column_exists("usuarios", "banco", "INTEGER", 0)
+ensure_column_exists("usuarios", "xp", "INTEGER", 0)
+ensure_column_exists("usuarios", "nivel", "INTEGER", 0)
 
 # Cria a tabela de inventário se não existir
 cursor.execute('''
