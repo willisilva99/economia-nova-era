@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 import random
 from database import update_saldo, get_saldo, obter_inventario, adicionar_item
@@ -13,10 +14,10 @@ class Trabalho(commands.Cog):
             {"tipo": "Vigilante", "salario": random.randint(15, 40)},
             {"tipo": "Fugitivo", "salario": random.randint(10, 30)},
         ]
-        self.ferramentas_roubo = ["Faca", "Pistola", "Arma de Fogo"]  # Ferramentas necessárias para roubo
+        self.ferramentas_roubo = ["Faca", "Pistola", "Arma de Fogo"]
 
     @commands.command(name="trabalho")
-    @commands.cooldown(1, 3600, commands.BucketType.user)  # 1 hora de cooldown
+    @commands.cooldown(1, 3600, commands.BucketType.user)
     async def trabalho(self, ctx):
         trabalho_selecionado = random.choice(self.trabalho_opcoes)
         salario = trabalho_selecionado["salario"]
@@ -42,49 +43,28 @@ class Trabalho(commands.Cog):
         if evento:
             await ctx.send(evento)
 
-    @commands.command(name="comprar")
-    async def comprar(self, ctx, nome_ferramenta: str):
-        preco_ferramenta = 100  # Defina um preço para as ferramentas de roubo
-        saldo = get_saldo(ctx.author.id)
-
-        if saldo < preco_ferramenta:
-            await ctx.send(f"{ctx.author.mention}, você não tem saldo suficiente para comprar {nome_ferramenta}!")
-            return
-
-        if nome_ferramenta not in self.ferramentas_roubo:
-            await ctx.send(f"{ctx.author.mention}, essa ferramenta não está disponível na loja.")
-            return
-
-        # Deduz o preço do saldo e adiciona a ferramenta ao inventário
-        update_saldo(ctx.author.id, -preco_ferramenta)
-        adicionar_item(ctx.author.id, nome_ferramenta)
-        await ctx.send(f"{ctx.author.mention}, você comprou uma {nome_ferramenta} por {preco_ferramenta} moedas!")
-
     @commands.command(name="roubar")
     async def roubar(self, ctx, membro: discord.Member):
         if membro == ctx.author:
             await ctx.send("Você não pode roubar a si mesmo!")
             return
 
-        # Verifica se o usuário tem uma ferramenta de roubo
         inventario = obter_inventario(ctx.author.id)
         if not any(item in inventario for item in self.ferramentas_roubo):
             await ctx.send(f"{ctx.author.mention}, você precisa de uma ferramenta de roubo para tentar roubar!")
             return
 
-        # Lógica para roubar
-        sucesso = random.choice([True, False])  # 50% de chance de sucesso
+        sucesso = random.choice([True, False])
         if sucesso:
-            valor_roubado = random.randint(10, 100)  # Valor a ser roubado
+            valor_roubado = random.randint(10, 100)
             saldo_membro = get_saldo(membro.id)
 
             if saldo_membro < valor_roubado:
                 await ctx.send(f"{ctx.author.mention}, {membro.mention} não tem saldo suficiente para ser roubado!")
                 return
 
-            # Deduz o valor do saldo do membro
             update_saldo(membro.id, -valor_roubado)
-            update_saldo(ctx.author.id, valor_roubado)  # Adiciona o valor ao saldo do ladrão
+            update_saldo(ctx.author.id, valor_roubado)
             await ctx.send(f"{ctx.author.mention}, você roubou {valor_roubado} moedas de {membro.mention}!")
         else:
             await ctx.send(f"{ctx.author.mention}, você falhou na tentativa de roubo! Um zumbi apareceu e te assustou!")
@@ -93,8 +73,7 @@ class Trabalho(commands.Cog):
     async def trabalho_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             tempo_espera = int(error.retry_after // 60)
-            await ctx.send(f"⚠️ **Atenção!** Você deve esperar {tempo_espera} minutos antes de trabalhar novamente. "
-                           f"Os zumbis estão rondando e cada minuto é precioso! Prepare-se antes de sair novamente.")
+            await ctx.send(f"⏳ Espere mais {tempo_espera} minutos antes de trabalhar novamente.")
         else:
             await ctx.send("Ocorreu um erro ao tentar trabalhar.")
 
