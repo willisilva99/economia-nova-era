@@ -23,6 +23,7 @@ cogs = [
     "inventario",      # Sistema de inventário
     "nivel",           # Sistema de níveis e XP
     "missao",          # Sistema de missões diárias
+    "pvp"              # Sistema de PvP
 ]
 
 # Carregar cada cog
@@ -74,7 +75,8 @@ async def ajuda(ctx):
         "👹 lutar_boss": "!!lutar_boss <nome_boss> - Lute contra um boss (ex: !!lutar_boss Zumbi Gigante, !!lutar_boss Mestre dos Zumbis).",
         "🗺️ missao": "!!missao - Receba uma missão diária para completar.",
         "💡 dica": "!!dica - Obtenha uma dica sobre sobrevivência.",
-        "🏃 fuga": "!!fuga - Tente escapar de uma situação de perigo."
+        "🏃 fuga": "!!fuga - Tente escapar de uma situação de perigo.",
+        "⚔️ pvp": "!!pvp @usuario - Desafie outro jogador para uma batalha de PvP."
     }
 
     resposta = "🆘 **Comandos disponíveis:**\n" + "\n".join([f"{cmd}: {desc}" for cmd, desc in comandos.items()])
