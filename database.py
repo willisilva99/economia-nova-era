@@ -14,7 +14,14 @@ conn = psycopg2.connect(
 )
 cursor = conn.cursor()
 
-# Cria a tabela de usuários se não existir, com o tipo BIGINT para a coluna id
+# Comando para alterar o tipo da coluna id para BIGINT
+cursor.execute('''
+ALTER TABLE usuarios 
+ALTER COLUMN id TYPE BIGINT;
+''')
+conn.commit()
+
+# Cria a tabela de usuários se não existir
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS usuarios (
     id BIGINT PRIMARY KEY,
