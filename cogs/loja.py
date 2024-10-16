@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from database import update_saldo, adicionar_item, get_saldo
 
 class Loja(commands.Cog):
     def __init__(self, bot):
@@ -21,7 +22,20 @@ class Loja(commands.Cog):
 
     @commands.command(name="comprar")
     async def comprar(self, ctx, nome_arma: str):
-        # Lógica de compra aqui...
+        if nome_arma not in self.armas:
+            await ctx.send(f"{ctx.author.mention}, essa arma não está disponível na loja.")
+            return
+        
+        preco = self.armas[nome_arma]
+        saldo = get_saldo(ctx.author.id)
+
+        if saldo < preco:
+            await ctx.send(f"{ctx.author.mention}, você não tem saldo suficiente para comprar {nome_arma}!")
+            return
+
+        update_saldo(ctx.author.id, -preco)
+        adicionar_item(ctx.author.id, nome_arma)
+        await ctx.send(f"{ctx.author.mention}, você comprou uma {nome_arma} por {preco} moedas!")
 
 def setup(bot):
     bot.add_cog(Loja(bot))
