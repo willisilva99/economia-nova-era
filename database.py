@@ -14,10 +14,10 @@ conn = psycopg2.connect(
 )
 cursor = conn.cursor()
 
-# Cria a tabela de usuários se não existir
+# Cria a tabela de usuários se não existir, com o tipo BIGINT para a coluna id
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS usuarios (
-    id SERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     saldo INTEGER DEFAULT 0,
     banco INTEGER DEFAULT 0
 )
