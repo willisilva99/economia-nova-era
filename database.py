@@ -106,11 +106,16 @@ def get_xp(user_id):
     result = cursor.fetchone()
     return result[0] if result else 0
 
-# Função para obter o banco de um usuário
+# Função para obter o valor do banco de um usuário
 def get_banco(user_id):
     cursor.execute("SELECT banco FROM usuarios WHERE id = %s", (user_id,))
     result = cursor.fetchone()
     return result[0] if result else 0
+
+# Função para atualizar o valor do banco de um usuário
+def update_banco(user_id, valor):
+    cursor.execute("UPDATE usuarios SET banco = banco + %s WHERE id = %s", (valor, user_id))
+    conn.commit()
 
 # Função para obter inventário de um usuário
 def obter_inventario(user_id):
