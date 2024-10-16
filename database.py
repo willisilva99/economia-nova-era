@@ -27,7 +27,16 @@ CREATE TABLE IF NOT EXISTS usuarios (
     id BIGINT PRIMARY KEY,
     saldo INTEGER DEFAULT 0,
     banco INTEGER DEFAULT 0
-)
+);
+''')
+conn.commit()
+
+# Cria a tabela de inventário se não existir
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS inventario (
+    user_id BIGINT PRIMARY KEY,
+    armas TEXT DEFAULT '[]'
+);
 ''')
 conn.commit()
 
@@ -66,3 +75,38 @@ def update_banco(user_id, valor):
     cursor.execute("UPDATE usuarios SET banco = %s WHERE id = %s", (novo_banco, user_id))
     conn.commit()
     return novo_banco
+
+# Função para adicionar um item ao inventário
+def adicionar_item(user_id, item):
+    cursor.execute("SELECT armas FROM inventario WHERE user_id = %s", (user_id,))
+    result = cursor.fetchone()
+    if result:
+        # Adiciona item ao inventário
+        armas = eval(result[0])  # Converte de string para lista
+        armas.append(item)
+        cursor.execute("UPDATE inventario SET armas = %s WHERE user_id = %s", (str(armas), user_id))
+    else:
+        # Cria um novo inventário
+        cursor.execute("INSERT INTO inventario (user_id, armas) VALUES (%s, %s)", (user_id, str([item])))
+    conn.commit()
+
+# Função para obter o inventário do usuário
+def obter_inventario(user_id):
+    cursor.execute("SELECT armas FROM inventario WHERE user_id = %s", (user_id,))
+    result = cursor.fetchone()
+    return eval(result[0]) if result else []
+
+# Funções de investimento
+def obter_investimentos(user_id):
+    # Retorna o total de investimentos para o usuário
+    # Aqui você pode implementar uma lógica para armazenar e obter investimentos
+    pass
+
+def adicionar_investimento(user_id, valor):
+    # Aqui você pode implementar a lógica para adicionar um investimento
+    pass
+
+# Fechar a conexão ao banco de dados quando o bot encerrar
+def close_connection():
+    cursor.close()
+    conn.close()
