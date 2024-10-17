@@ -1,87 +1,184 @@
 import discord
 from discord.ext import commands
+from discord import Embed
 import os
-import random
-from dotenv import load_dotenv
 
-# Carregar variáveis de ambiente do arquivo .env
-load_dotenv()
-
-# Configuração de intents e do prefixo do bot
+# Configurações do bot
 intents = discord.Intents.default()
-intents.members = True  # Ativando intents para acessar informações de membros
+intents.reactions = True
+intents.members = True
+
 bot = commands.Bot(command_prefix="!!", intents=intents)
 
-# Lista de cogs que vamos carregar
-cogs = [
-    "trabalho",        # Sistema de trabalho
-    "investimento",    # Sistema de investimento
-    "saldo",           # Sistema de saldo
-    "banco",           # Sistema bancário
-    "loja",            # Sistema de loja
-    "boss",            # Sistema de bosses
-    "inventario",      # Sistema de inventário
-    "nivel",           # Sistema de níveis e XP
-    "missao",          # Sistema de missões diárias
-    "pvp"              # Sistema de PvP
-]
+# Variáveis de pagamento (PIX, QR Code)
+qr_code_link = "https://cdn.discordapp.com/attachments/1291144028590706799/1296617719029960814/IMG_20240715_155531.jpg"
+pix_code = "00020126550014br.gov.bcb.pix0114+55679810387370215DOACAO NOVA ERA5204000053039865802BR5924Willi Aparecido Oliveira6008Brasilia62090505v56ir63049489"
 
-# Carregar cada cog
-for cog in cogs:
+# Função para iniciar o processo de compra de VIP
+@bot.command(name="comprarvip")
+async def comprar_vip(ctx):
+    embed = Embed(
+        title="Escolha seu Pacote VIP",
+        description="Reaja para **ver os detalhes** de cada pacote:\n"
+                    "💎 - Ver Pacote DIAMANTE\n"
+                    "🥈 - Ver Pacote PRATA\n"
+                    "🥉 - Ver Pacote BRONZE\n",
+        color=discord.Color.blue()
+    )
+    embed.set_thumbnail(url=qr_code_link)
+    embed.set_footer(text="Apenas o usuário que chamou o comando pode reagir.")
+
+    # Envio da mensagem
+    message = await ctx.send(embed=embed)
+
+    # Adicionar reações
+    await message.add_reaction("💎")
+    await message.add_reaction("🥈")
+    await message.add_reaction("🥉")
+
+    # Função de verificação
+    def check(reaction, user):
+        return user == ctx.author and str(reaction.emoji) in ["💎", "🥈", "🥉"] and reaction.message.id == message.id
+
     try:
-        bot.load_extension(f"cogs.{cog}")
-        print(f"Cog {cog} carregado com sucesso.")
+        # Esperar pela reação do usuário
+        reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check)
+
+        if str(reaction.emoji) == "💎":
+            await mostrar_detalhes(ctx, "DIAMANTE", 60)
+        elif str(reaction.emoji) == "🥈":
+            await mostrar_detalhes(ctx, "PRATA", 30)
+        elif str(reaction.emoji) == "🥉":
+            await mostrar_detalhes(ctx, "BRONZE", 20)
+
     except Exception as e:
-        print(f"Erro ao carregar o cog {cog}: {e}")
+        await ctx.send("Tempo esgotado. Por favor, tente novamente.")
 
-@bot.event
-async def on_ready():
-    print(f"Bot conectado como {bot.user}")
+# Função para mostrar os detalhes de cada pacote VIP
+async def mostrar_detalhes(ctx, pacote, valor):
+    if pacote == "DIAMANTE":
+        descricao = (
+            "🎯 1 Sniper (Nível T6)\n"
+            "🔋 2.000 Munições 7.62 AP\n"
+            "🏍️ 1 Moto\n"
+            "⚡ 1 Porrete Elétrico (Nível T6)\n"
+            "🔧 1 Silenciador\n"
+            "🔭 1 Mira 4x\n"
+            "🪑 1 Mod Banco para 2 Pessoas\n"
+            "⛽ 1 Mod de Combustível para Moto\n"
+            "⛽ 3.000 Unidades de Combustível\n"
+            "💬 Cargo no Discord: DIAMANTE"
+        )
+    elif pacote == "PRATA":
+        descricao = (
+            "🪖 AK-47 (Nível T6)\n"
+            "🔫 1 Silenciador\n"
+            "🔭 1 Mira 4x\n"
+            "⛽ 5.000 Unidades de Gasolina\n"
+            "🔋 2.000 Munições AP\n"
+            "🏍️ 1 Moto\n"
+            "💬 Cargo no Discord: PLATA"
+        )
+    elif pacote == "BRONZE":
+        descricao = (
+            "⛏️ 1 Picareta de Ferro\n"
+            "🔧 1 Pá de Ferro\n"
+            "🔨 1 Martelo\n"
+            "🪨 1.000 Pedras Portuguesas\n"
+            "🌲 1.000 Madeira\n"
+            "🧱 200 Cimentos\n"
+            "🔫 1 12 (Nível T6)\n"
+            "🔋 200 Munições 12\n"
+            "💬 Cargo no Discord: BRONZE"
+        )
 
-@bot.command(name="status")
-async def status(ctx):
-    total_users = len(set(bot.get_all_members()))  # Número total de usuários únicos
-    await ctx.send(f"🤖 **Status do Bot:**\n"
-                   f"Estou online e pronto para ajudar!\n"
-                   f"Número total de usuários: {total_users}")
+    embed = Embed(
+        title=f"Detalhes do Pacote {pacote}",
+        description=descricao,
+        color=discord.Color.green()
+    )
+    embed.add_field(name="Preço", value=f"R${valor}", inline=False)
+    embed.set_footer(text="Reaja com 💲 para ver o preço ou ↩️ para voltar à lista de pacotes.")
 
-@bot.command(name="evento")
-async def evento(ctx):
-    eventos = [
-        "Uma horda de zumbis avança em sua direção! Prepare-se!",
-        "Você encontrou um abrigo seguro, mas cuidado com os perigos internos!",
-        "Um sobrevivente te pediu ajuda, mas ele pode ser uma armadilha.",
-        "Você descobriu um suprimento de comida em uma loja abandonada!",
-        "O céu está escurecendo, sinal de uma tempestade. Fique atento!"
-    ]
-    await ctx.send(random.choice(eventos))
+    message = await ctx.send(embed=embed)
+    await message.add_reaction("💲")
+    await message.add_reaction("↩️")
 
-@bot.command(name="ajuda")
-async def ajuda(ctx):
-    comandos = {
-        "🛠️ trabalho": "!!trabalho - Trabalhe para ganhar moedas.",
-        "🛒 comprar": "!!comprar <arma> - Compre uma arma na loja.",
-        "💰 roubar": "!!roubar @membro - Tente roubar moedas de outro jogador.",
-        "📊 status": "!!status - Veja o status do bot.",
-        "🎲 evento": "!!evento - Desencadeie um evento aleatório.",
-        "❓ ajuda": "!!ajuda - Liste todos os comandos disponíveis.",
-        "📖 historia": "!!historia - Ouça uma parte da narrativa do apocalipse.",
-        "⚔️ listar_armas": "!!listar_armas - Veja a lista de armas disponíveis na loja.",
-        "📈 investir": "!!investir <valor> - Invista seu saldo e tenha chance de ganhar ou perder dinheiro.",
-        "📊 ver_investimentos": "!!ver_investimentos - Veja o total investido.",
-        "🚫 cancelar_investimento": "!!cancelar_investimento - Cancele seu investimento e recupere parte do valor.",
-        "👾 ver_bosses": "!!ver_bosses - Veja todos os bosses disponíveis para lutar.",
-        "🔍 ver_inventario": "!!ver_inventario - Veja os itens que você possui.",
-        "👹 lutar_boss": "!!lutar_boss <nome_boss> - Lute contra um boss (ex: !!lutar_boss Zumbi Gigante, !!lutar_boss Mestre dos Zumbis).",
-        "🗺️ missao": "!!missao - Receba uma missão diária para completar.",
-        "💡 dica": "!!dica - Obtenha uma dica sobre sobrevivência.",
-        "🏃 fuga": "!!fuga - Tente escapar de uma situação de perigo.",
-        "⚔️ pvp": "!!pvp @usuario - Desafie outro jogador para uma batalha de PvP."
-    }
+    def check_option(reaction, user):
+        return user == ctx.author and str(reaction.emoji) in ["💲", "↩️"] and reaction.message.id == message.id
 
-    resposta = "🆘 **Comandos disponíveis:**\n" + "\n".join([f"{cmd}: {desc}" for cmd, desc in comandos.items()])
-    await ctx.send(resposta)
+    try:
+        # Espera o usuário escolher ver o preço ou voltar à lista
+        reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check_option)
 
-# Executar o bot
-TOKEN = os.getenv('TOKEN')
+        if str(reaction.emoji) == "💲":
+            await mostrar_pagamento(ctx, pacote, valor)
+        elif str(reaction.emoji) == "↩️":
+            await comprar_vip(ctx)
+
+    except Exception as e:
+        await ctx.send("Tempo esgotado. Por favor, tente novamente.")
+
+# Função para mostrar as informações de pagamento
+async def mostrar_pagamento(ctx, pacote, valor):
+    embed = Embed(
+        title=f"Pacote {pacote} - R${valor}",
+        description="Reaja para escolher uma das opções abaixo:\n"
+                    "🖼️ - Ver QR Code para pagamento\n"
+                    "📋 - Copiar código PIX\n"
+                    "↩️ - Voltar para a lista de pacotes",
+        color=discord.Color.green()
+    )
+    message = await ctx.send(embed=embed)
+    await message.add_reaction("🖼️")
+    await message.add_reaction("📋")
+    await message.add_reaction("↩️")
+
+    # Função para verificar a reação do usuário
+    def check_payment_option(reaction, user):
+        return user == ctx.author and str(reaction.emoji) in ["🖼️", "📋", "↩️"] and reaction.message.id == message.id
+
+    try:
+        reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check_payment_option)
+
+        if str(reaction.emoji) == "🖼️":
+            await enviar_qr_code(ctx)
+        elif str(reaction.emoji) == "📋":
+            await copiar_pix(ctx)
+        elif str(reaction.emoji) == "↩️":
+            await comprar_vip(ctx)
+
+    except Exception as e:
+        await ctx.send("Tempo esgotado. Por favor, tente novamente.")
+
+# Função para enviar o QR Code
+async def enviar_qr_code(ctx):
+    embed = Embed(
+        title="QR Code para Pagamento",
+        description=f"[Clique aqui para ver o QR Code]({qr_code_link})",
+        color=discord.Color.blue()
+    )
+    await ctx.send(embed=embed)
+
+# Função para enviar o código PIX para copiar e colar
+async def copiar_pix(ctx):
+    embed = Embed(
+        title="Código PIX para Copiar",
+        description=f"**Código PIX:** `{pix_code}`\n\nCopie e cole no seu aplicativo bancário.",
+        color=discord.Color.blue()
+    )
+    await ctx.send(embed=embed)
+
+# Função para confirmar o pagamento e direcionar para o canal de tickets
+async def confirmar_pagamento(ctx):
+    embed = Embed(
+        title="Pagamento Confirmado",
+        description="Seu pagamento foi confirmado com sucesso! Agora, envie seu comprovante no canal de tickets.\n\n"
+                    "Acesse o canal [#abrir-ticket](https://discord.com/channels/1262580157130997760/abrir-ticket).",
+        color=discord.Color.gold()
+    )
+    await ctx.send(embed=embed)
+
+# Rodar o bot
+TOKEN = os.getenv("TOKEN")
 bot.run(TOKEN)
