@@ -211,7 +211,7 @@ async def confirmar_pagamento_reacao(ctx, mensagem):
 
     try:
         await bot.wait_for('reaction_add', timeout=600.0, check=check_confirm)
-        
+
         # Após confirmar o pagamento, apagar QR Code e mostrar mensagem temática
         await message.delete()
         await confirmar_pagamento(ctx)
@@ -251,25 +251,6 @@ async def confirmar_pagamento(ctx):
 
     # Agradecimento ao usuário
     await ctx.send(f"🎉 Muito obrigado, {ctx.author.mention}, por sua compra! Estamos processando sua solicitação.")
-
-    # Adiciona o pacote VIP ao inventário do usuário
-    adicionar_inventario(ctx.author.id, "VIP " + pacote)
-
-# Função para adicionar o pacote ao inventário do jogador
-def adicionar_inventario(user_id, pacote):
-    if user_id not in user_inventory:
-        user_inventory[user_id] = []
-    user_inventory[user_id].append(pacote)
-
-# Comando para verificar o inventário do jogador
-@bot.command(name="inventario")
-async def ver_inventario(ctx):
-    user_id = ctx.author.id
-    if user_id not in user_inventory or not user_inventory[user_id]:
-        await ctx.send(f"📦 {ctx.author.mention}, seu inventário está vazio.")
-    else:
-        pacotes = ", ".join(user_inventory[user_id])
-        await ctx.send(f"📦 {ctx.author.mention}, seu inventário: {pacotes}")
 
 # Função para exibir uma mensagem temática após a confirmação do pagamento
 async def mostrar_mensagem_apocalipse(ctx):
