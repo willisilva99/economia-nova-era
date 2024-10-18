@@ -125,17 +125,19 @@ async def mostrar_pagamento(ctx, pacote, valor):
         description="Reaja para escolher uma das opções abaixo:\n"
                     "🖼️ - Ver QR Code para pagamento\n"
                     "📋 - Copiar código PIX\n"
+                    "✅ - Confirmar pagamento\n"
                     "↩️ - Voltar para a lista de pacotes",
         color=discord.Color.green()
     )
     message = await ctx.send(embed=embed)
     await message.add_reaction("🖼️")
     await message.add_reaction("📋")
+    await message.add_reaction("✅")
     await message.add_reaction("↩️")
 
     # Função para verificar a reação do usuário
     def check_payment_option(reaction, user):
-        return user == ctx.author and str(reaction.emoji) in ["🖼️", "📋", "↩️"] and reaction.message.id == message.id
+        return user == ctx.author and str(reaction.emoji) in ["🖼️", "📋", "✅", "↩️"] and reaction.message.id == message.id
 
     try:
         reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check_payment_option)
@@ -144,6 +146,8 @@ async def mostrar_pagamento(ctx, pacote, valor):
             await enviar_qr_code(ctx)
         elif str(reaction.emoji) == "📋":
             await copiar_pix(ctx)
+        elif str(reaction.emoji) == "✅":
+            await confirmar_pagamento(ctx)
         elif str(reaction.emoji) == "↩️":
             await comprar_vip(ctx)
 
@@ -169,15 +173,19 @@ async def copiar_pix(ctx):
     )
     await ctx.send(embed=embed)
 
-# Função para confirmar o pagamento e direcionar para o canal de tickets
+# Função para confirmar o pagamento, enviar agradecimento e direcionar para o canal de tickets
 async def confirmar_pagamento(ctx):
     embed = Embed(
         title="Pagamento Confirmado",
-        description="Seu pagamento foi confirmado com sucesso! Agora, envie seu comprovante no canal de tickets.\n\n"
+        description="Obrigado por seu pagamento! 🎉\n"
+                    "Agora, envie seu comprovante no canal de tickets.\n\n"
                     "Acesse o canal [#abrir-ticket](https://discord.com/channels/1262580157130997760/abrir-ticket).",
         color=discord.Color.gold()
     )
     await ctx.send(embed=embed)
+
+    # Agradecimento ao usuário
+    await ctx.send(f"Muito obrigado, {ctx.author.mention}, por sua compra! Estamos processando sua solicitação.")
 
 # Rodar o bot
 TOKEN = os.getenv("TOKEN")
