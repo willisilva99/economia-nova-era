@@ -23,6 +23,9 @@ image_diamante = "https://cdn.discordapp.com/attachments/1291144028590706799/129
 image_prata = "https://cdn.discordapp.com/attachments/1291144028590706799/1296636697085476915/DALLE_2024-10-17_21.50.02_-_A_scene_showing_a_person_in_a_post-apocalyptic_setting_opening_a_special_drop_box_labeled_Prata_Caixa_de_Drop._The_box_has_a_metallic_silver_appeara.webp"
 image_bronze = "https://cdn.discordapp.com/attachments/1291144028590706799/1296636677770449007/DALLE_2024-10-17_21.50.38_-_A_scene_in_a_post-apocalyptic_environment_where_a_person_is_opening_a_special_drop_box_labeled_Bronze_Caixa_de_Drop._The_box_has_a_rugged_bronze-co.webp"
 
+# Imagem das formas de pagamento
+image_pagamento = "https://cdn.discordapp.com/attachments/1291144028590706799/1296644402248417331/DALLE_2024-10-17_22.20.45_-_A_post-apocalyptic_scene_showing_a_person_making_a_payment_at_a_high-tech_portal_with_a_sign_in_the_background_reading_Nova_Era._The_portal_has_glo.webp"
+
 # Função para iniciar o processo de compra de VIP
 @bot.command(name="comprarvip")
 async def comprar_vip(ctx):
@@ -141,7 +144,7 @@ async def mostrar_detalhes(ctx, pacote, valor, imagem):
     except Exception as e:
         await ctx.send("⏰ **Tempo esgotado!** Por favor, tente novamente.")
 
-# Função para mostrar as informações de pagamento
+# Função para mostrar as informações de pagamento com imagem personalizada
 async def mostrar_pagamento(ctx, pacote, valor):
     embed = Embed(
         title=f"💳 **Pagamento do Pacote {pacote}** - R${valor}",
@@ -151,6 +154,7 @@ async def mostrar_pagamento(ctx, pacote, valor):
                     "↩️ - Voltar para a lista de pacotes",
         color=discord.Color.gold()
     )
+    embed.set_image(url=image_pagamento)  # Mostra a imagem personalizada das formas de pagamento
     message = await ctx.send(embed=embed)
     await message.add_reaction("🖼️")
     await message.add_reaction("📋")
@@ -168,13 +172,34 @@ async def mostrar_pagamento(ctx, pacote, valor):
 
         if str(reaction.emoji) == "🖼️":
             await enviar_qr_code(ctx)
+            await confirmar_pagamento_reacao(ctx)
         elif str(reaction.emoji) == "📋":
             await copiar_pix(ctx)
+            await confirmar_pagamento_reacao(ctx)
         elif str(reaction.emoji) == "↩️":
             await comprar_vip(ctx)
 
     except Exception as e:
         await ctx.send("⏰ **Tempo esgotado!** Por favor, tente novamente.")
+
+# Função para exibir a opção de confirmar o pagamento após o QR Code ou o código PIX
+async def confirmar_pagamento_reacao(ctx):
+    embed = Embed(
+        title="✅ **Confirmar Pagamento**",
+        description="Reaja com ✅ para confirmar que o pagamento foi realizado.",
+        color=discord.Color.orange()
+    )
+    message = await ctx.send(embed=embed)
+    await message.add_reaction("✅")
+
+    def check_confirm(reaction, user):
+        return user == ctx.author and str(reaction.emoji) == "✅" and reaction.message.id == message.id
+
+    try:
+        await bot.wait_for('reaction_add', timeout=600.0, check=check_confirm)
+        await confirmar_pagamento(ctx)
+    except Exception as e:
+        await ctx.send("⏰ **Tempo esgotado para confirmação**. Caso tenha realizado o pagamento, por favor, entre em contato.")
 
 # Função para enviar o QR Code diretamente como embed
 async def enviar_qr_code(ctx):
