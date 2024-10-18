@@ -186,21 +186,21 @@ async def mostrar_pagamento(ctx, pacote, valor):
 
         if str(reaction.emoji) == "🖼️":
             await enviar_qr_code(ctx)
-            await confirmar_pagamento_reacao(ctx)
+            await confirmar_pagamento_reacao(ctx, "QR Code exibido. Realize o pagamento e confirme.")
         elif str(reaction.emoji) == "📋":
             await copiar_pix(ctx)
-            await confirmar_pagamento_reacao(ctx)
+            await confirmar_pagamento_reacao(ctx, "Código PIX copiado. Realize o pagamento e confirme.")
         elif str(reaction.emoji) == "↩️":
             await comprar_vip(ctx)
 
     except Exception as e:
         await ctx.send("⏰ **Tempo esgotado!** Por favor, tente novamente.")
 
-# Função para exibir a opção de confirmar o pagamento após o QR Code ou o código PIX
-async def confirmar_pagamento_reacao(ctx):
+# Função para exibir a opção de confirmar o pagamento após o QR Code ou o código PIX, com mensagem personalizada
+async def confirmar_pagamento_reacao(ctx, mensagem):
     embed = Embed(
         title="✅ **Confirmar Pagamento**",
-        description="Reaja com ✅ para confirmar que o pagamento foi realizado.",
+        description=mensagem + "\n\nReaja com ✅ para confirmar que o pagamento foi realizado.",
         color=discord.Color.orange()
     )
     message = await ctx.send(embed=embed)
@@ -248,7 +248,7 @@ async def confirmar_pagamento(ctx):
     await ctx.send(f"🎉 Muito obrigado, {ctx.author.mention}, por sua compra! Estamos processando sua solicitação.")
 
     # Adiciona o pacote VIP ao inventário do usuário
-    adicionar_inventario(ctx.author.id, pacote)
+    adicionar_inventario(ctx.author.id, "VIP " + pacote)
 
 # Função para adicionar o pacote ao inventário do jogador
 def adicionar_inventario(user_id, pacote):
