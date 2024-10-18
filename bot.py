@@ -11,7 +11,7 @@ intents.members = True
 bot = commands.Bot(command_prefix="!!", intents=intents)
 
 # Variáveis de pagamento (PIX, QR Code)
-qr_code_link = "https://cdn.discordapp.com/attachments/1291144028590706799/1296617719029960814/IMG_20240715_155531.jpg"
+qr_code_image_path = "path_to_qrcode_image/IMG_20240715_155531.jpg"  # Altere o caminho para onde está a imagem no seu sistema local
 pix_code = "00020126550014br.gov.bcb.pix0114+55679810387370215DOACAO NOVA ERA5204000053039865802BR5924Willi Aparecido Oliveira6008Brasilia62090505v56ir63049489"
 
 # Função para iniciar o processo de compra de VIP
@@ -25,7 +25,6 @@ async def comprar_vip(ctx):
                     "🥉 - Ver Pacote BRONZE\n",
         color=discord.Color.blue()
     )
-    embed.set_thumbnail(url=qr_code_link)
     embed.set_footer(text="Apenas o usuário que chamou o comando pode reagir.")
 
     # Envio da mensagem
@@ -151,14 +150,13 @@ async def mostrar_pagamento(ctx, pacote, valor):
     except Exception as e:
         await ctx.send("Tempo esgotado. Por favor, tente novamente.")
 
-# Função para enviar o QR Code
+# Função para enviar o QR Code diretamente como imagem
 async def enviar_qr_code(ctx):
-    embed = Embed(
-        title="QR Code para Pagamento",
-        description=f"[Clique aqui para ver o QR Code]({qr_code_link})",
-        color=discord.Color.blue()
-    )
-    await ctx.send(embed=embed)
+    try:
+        # Enviando o arquivo da imagem do QR Code
+        await ctx.send(file=discord.File(qr_code_image_path))
+    except Exception as e:
+        await ctx.send("Erro ao enviar o QR Code. Verifique o caminho do arquivo.")
 
 # Função para enviar o código PIX para copiar e colar
 async def copiar_pix(ctx):
