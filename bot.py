@@ -125,34 +125,52 @@ async def mostrar_pagamento(ctx, pacote, valor):
         description="Reaja para escolher uma das opções abaixo:\n"
                     "🖼️ - Ver QR Code para pagamento\n"
                     "📋 - Copiar código PIX\n"
-                    "✅ - Confirmar pagamento\n"
                     "↩️ - Voltar para a lista de pacotes",
         color=discord.Color.green()
     )
     message = await ctx.send(embed=embed)
     await message.add_reaction("🖼️")
     await message.add_reaction("📋")
-    await message.add_reaction("✅")
     await message.add_reaction("↩️")
 
     # Função para verificar a reação do usuário
     def check_payment_option(reaction, user):
-        return user == ctx.author and str(reaction.emoji) in ["🖼️", "📋", "✅", "↩️"] and reaction.message.id == message.id
+        return user == ctx.author and str(reaction.emoji) in ["🖼️", "📋", "↩️"] and reaction.message.id == message.id
 
     try:
         reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check_payment_option)
 
         if str(reaction.emoji) == "🖼️":
             await enviar_qr_code(ctx)
+            await confirmar_pagamento_reacao(ctx)
         elif str(reaction.emoji) == "📋":
             await copiar_pix(ctx)
-        elif str(reaction.emoji) == "✅":
-            await confirmar_pagamento(ctx)
+            await confirmar_pagamento_reacao(ctx)
         elif str(reaction.emoji) == "↩️":
             await comprar_vip(ctx)
 
     except Exception as e:
         await ctx.send("Tempo esgotado. Por favor, tente novamente.")
+
+# Função para exibir a opção de confirmar o pagamento após o QR Code ou o código PIX
+async def confirmar_pagamento_reacao(ctx):
+    embed = Embed(
+        title="Pagamento Realizado?",
+        description="Reaja com ✅ para confirmar que você já fez o pagamento.",
+        color=discord.Color.orange()
+    )
+    message = await ctx.send(embed=embed)
+    await message.add_reaction("✅")
+
+    # Função para verificar a confirmação do pagamento
+    def check_confirm(reaction, user):
+        return user == ctx.author and str(reaction.emoji) == "✅" and reaction.message.id == message.id
+
+    try:
+        await bot.wait_for('reaction_add', timeout=600.0, check=check_confirm)
+        await confirmar_pagamento(ctx)
+    except Exception as e:
+        await ctx.send("Tempo esgotado para confirmação. Caso tenha realizado o pagamento, por favor, entre em contato.")
 
 # Função para enviar o QR Code diretamente como embed
 async def enviar_qr_code(ctx):
