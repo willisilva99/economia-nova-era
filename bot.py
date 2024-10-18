@@ -27,7 +27,7 @@ async def comprar_vip(ctx):
                     "🥉 - Ver Pacote BRONZE\n",
         color=discord.Color.blue()
     )
-    embed.set_image(url=image_link)  # Exibindo a imagem no embed
+    embed.set_image(url=image_link)  # Exibindo a imagem principal no topo do embed
     embed.set_footer(text="Apenas o usuário que chamou o comando pode reagir.")
 
     # Envio da mensagem
