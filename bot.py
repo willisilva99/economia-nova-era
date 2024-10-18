@@ -14,6 +14,7 @@ bot = commands.Bot(command_prefix="!!", intents=intents)
 qr_code_link = "https://cdn.discordapp.com/attachments/1291144028590706799/1296617719029960814/IMG_20240715_155531.jpg"
 pix_code = "00020126550014br.gov.bcb.pix0114+55679810387370215DOACAO NOVA ERA5204000053039865802BR5924Willi Aparecido Oliveira6008Brasilia62090505v56ir63049489"
 ticket_channel_id = "1262580157130997760"  # ID do canal de tickets
+image_link = "https://cdn.discordapp.com/attachments/1291144028590706799/1296634863176122399/DALLE_2024-10-17_21.20.39_-_A_survivor_in_a_post-apocalyptic_world_inside_a_dimly_lit_makeshift_shop._The_survivor_is_standing_at_a_counter_choosing_from_a_variety_of_weapons_f.jpg"
 
 # Função para iniciar o processo de compra de VIP
 @bot.command(name="comprarvip")
@@ -26,6 +27,7 @@ async def comprar_vip(ctx):
                     "🥉 - Ver Pacote BRONZE\n",
         color=discord.Color.blue()
     )
+    embed.set_image(url=image_link)  # Exibindo a imagem no embed
     embed.set_footer(text="Apenas o usuário que chamou o comando pode reagir.")
 
     # Envio da mensagem
