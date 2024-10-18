@@ -211,7 +211,12 @@ async def confirmar_pagamento_reacao(ctx, mensagem):
 
     try:
         await bot.wait_for('reaction_add', timeout=600.0, check=check_confirm)
+        
+        # Após confirmar o pagamento, apagar QR Code e mostrar mensagem temática
+        await message.delete()
         await confirmar_pagamento(ctx)
+        await mostrar_mensagem_apocalipse(ctx)
+
     except Exception as e:
         await ctx.send("⏰ **Tempo esgotado para confirmação**. Caso tenha realizado o pagamento, por favor, entre em contato.")
 
@@ -265,6 +270,22 @@ async def ver_inventario(ctx):
     else:
         pacotes = ", ".join(user_inventory[user_id])
         await ctx.send(f"📦 {ctx.author.mention}, seu inventário: {pacotes}")
+
+# Função para exibir uma mensagem temática após a confirmação do pagamento
+async def mostrar_mensagem_apocalipse(ctx):
+    mensagem_apocalipse = (
+        "⚔️ **Parabéns, sobrevivente!** Você conquistou seu pacote VIP e agora está mais preparado para enfrentar os perigos do apocalipse.\n"
+        "🏆 Seu valor foi reconhecido entre os bravos. Continue lutando, cada dia conta!"
+    )
+    embed = Embed(
+        title="🔥 **Sobrevivente de Elite!**",
+        description=mensagem_apocalipse,
+        color=discord.Color.red()
+    )
+    message = await ctx.send(embed=embed)
+    
+    # Adicionar reação à mensagem apocalíptica
+    await message.add_reaction("🔥")
 
 # Rodar o bot
 TOKEN = os.getenv("TOKEN")
