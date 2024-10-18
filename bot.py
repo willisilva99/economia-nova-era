@@ -13,6 +13,7 @@ bot = commands.Bot(command_prefix="!!", intents=intents)
 # Variáveis de pagamento (PIX, QR Code)
 qr_code_link = "https://cdn.discordapp.com/attachments/1291144028590706799/1296617719029960814/IMG_20240715_155531.jpg"
 pix_code = "00020126550014br.gov.bcb.pix0114+55679810387370215DOACAO NOVA ERA5204000053039865802BR5924Willi Aparecido Oliveira6008Brasilia62090505v56ir63049489"
+ticket_channel_id = "1262580157130997760"  # ID do canal de tickets
 
 # Função para iniciar o processo de compra de VIP
 @bot.command(name="comprarvip")
@@ -195,9 +196,8 @@ async def copiar_pix(ctx):
 async def confirmar_pagamento(ctx):
     embed = Embed(
         title="Pagamento Confirmado",
-        description="Obrigado por seu pagamento! 🎉\n"
-                    "Agora, envie seu comprovante no canal de tickets.\n\n"
-                    "Acesse o canal [#abrir-ticket](https://discord.com/channels/1262580157130997760/abrir-ticket).",
+        description=f"Obrigado por seu pagamento! 🎉\n"
+                    f"Agora, envie seu comprovante no canal de tickets: <#{ticket_channel_id}>.",
         color=discord.Color.gold()
     )
     await ctx.send(embed=embed)
