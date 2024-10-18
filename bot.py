@@ -14,7 +14,11 @@ bot = commands.Bot(command_prefix="!!", intents=intents)
 qr_code_link = "https://cdn.discordapp.com/attachments/1291144028590706799/1296617719029960814/IMG_20240715_155531.jpg"
 pix_code = "00020126550014br.gov.bcb.pix0114+55679810387370215DOACAO NOVA ERA5204000053039865802BR5924Willi Aparecido Oliveira6008Brasilia62090505v56ir63049489"
 ticket_channel_id = "1262580157130997760"  # ID do canal de tickets
-image_link = "https://cdn.discordapp.com/attachments/1291144028590706799/1296634863176122399/DALLE_2024-10-17_21.20.39_-_A_survivor_in_a_post-apocalyptic_world_inside_a_dimly_lit_makeshift_shop._The_survivor_is_standing_at_a_counter_choosing_from_a_variety_of_weapons_f.jpg"
+
+# Links das imagens para cada pacote VIP
+image_diamante = "https://cdn.discordapp.com/attachments/1291144028590706799/1296639105022693486/DALLE_2024-10-17_22.00.36_-_A_scene_showing_a_person_in_a_post-apocalyptic_setting_opening_a_special_drop_box_labeled_Diamante_Caixa_de_Drop._The_box_has_a_metallic_futuristic.webp"
+image_prata = "https://cdn.discordapp.com/attachments/1291144028590706799/1296636697085476915/DALLE_2024-10-17_21.50.02_-_A_scene_showing_a_person_in_a_post-apocalyptic_setting_opening_a_special_drop_box_labeled_Prata_Caixa_de_Drop._The_box_has_a_metallic_silver_appeara.webp"
+image_bronze = "https://cdn.discordapp.com/attachments/1291144028590706799/1296636677770449007/DALLE_2024-10-17_21.50.38_-_A_scene_in_a_post-apocalyptic_environment_where_a_person_is_opening_a_special_drop_box_labeled_Bronze_Caixa_de_Drop._The_box_has_a_rugged_bronze-co.webp"
 
 # Função para iniciar o processo de compra de VIP
 @bot.command(name="comprarvip")
@@ -27,7 +31,6 @@ async def comprar_vip(ctx):
                     "🥉 - Ver Pacote BRONZE\n",
         color=discord.Color.blue()
     )
-    embed.set_image(url=image_link)  # Exibindo a imagem principal no topo do embed
     embed.set_footer(text="Apenas o usuário que chamou o comando pode reagir.")
 
     # Envio da mensagem
@@ -47,17 +50,17 @@ async def comprar_vip(ctx):
         reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check)
 
         if str(reaction.emoji) == "💎":
-            await mostrar_detalhes(ctx, "DIAMANTE", 60)
+            await mostrar_detalhes(ctx, "DIAMANTE", 60, image_diamante)
         elif str(reaction.emoji) == "🥈":
-            await mostrar_detalhes(ctx, "PRATA", 30)
+            await mostrar_detalhes(ctx, "PRATA", 30, image_prata)
         elif str(reaction.emoji) == "🥉":
-            await mostrar_detalhes(ctx, "BRONZE", 20)
+            await mostrar_detalhes(ctx, "BRONZE", 20, image_bronze)
 
     except Exception as e:
         await ctx.send("Tempo esgotado. Por favor, tente novamente.")
 
-# Função para mostrar os detalhes de cada pacote VIP
-async def mostrar_detalhes(ctx, pacote, valor):
+# Função para mostrar os detalhes de cada pacote VIP, com a imagem correspondente
+async def mostrar_detalhes(ctx, pacote, valor, imagem):
     if pacote == "DIAMANTE":
         descricao = (
             "🎯 1 Sniper (Nível T6)\n"
@@ -100,6 +103,7 @@ async def mostrar_detalhes(ctx, pacote, valor):
         color=discord.Color.green()
     )
     embed.add_field(name="Preço", value=f"R${valor}", inline=False)
+    embed.set_image(url=imagem)  # Definir a imagem específica do pacote
     embed.set_footer(text="Reaja com 💲 para ver o preço ou ↩️ para voltar à lista de pacotes.")
 
     message = await ctx.send(embed=embed)
