@@ -26,6 +26,9 @@ image_bronze = "https://cdn.discordapp.com/attachments/1291144028590706799/12966
 # Imagem das formas de pagamento
 image_pagamento = "https://cdn.discordapp.com/attachments/1291144028590706799/1296644402248417331/DALLE_2024-10-17_22.20.45_-_A_post-apocalyptic_scene_showing_a_person_making_a_payment_at_a_high-tech_portal_with_a_sign_in_the_background_reading_Nova_Era._The_portal_has_glo.webp"
 
+# Dicionário para armazenar o inventário dos jogadores
+user_inventory = {}
+
 # Função para iniciar o processo de compra de VIP
 @bot.command(name="comprarvip")
 async def comprar_vip(ctx):
@@ -54,6 +57,10 @@ async def comprar_vip(ctx):
     def check(reaction, user):
         return user == ctx.author and str(reaction.emoji) in ["💎", "🥈", "🥉"] and reaction.message.id == message.id
 
+    # Função para bloquear reações de outros jogadores
+    def check_invalid_reaction(reaction, user):
+        return user != ctx.author and reaction.message.id == message.id
+
     try:
         # Esperar pela reação do usuário
         reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check)
@@ -71,6 +78,13 @@ async def comprar_vip(ctx):
 
     except Exception as e:
         await ctx.send("⏰ **Tempo esgotado!** Por favor, tente novamente.")
+
+    # Se um jogador diferente reagir
+    try:
+        reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check_invalid_reaction)
+        await ctx.send(f"🚫 {user.mention}, você não pode reagir a este comando. Apenas {ctx.author.mention} pode interagir.")
+    except:
+        pass
 
 # Função para mostrar os detalhes de cada pacote VIP, com a imagem correspondente
 async def mostrar_detalhes(ctx, pacote, valor, imagem):
@@ -232,6 +246,25 @@ async def confirmar_pagamento(ctx):
 
     # Agradecimento ao usuário
     await ctx.send(f"🎉 Muito obrigado, {ctx.author.mention}, por sua compra! Estamos processando sua solicitação.")
+
+    # Adiciona o pacote VIP ao inventário do usuário
+    adicionar_inventario(ctx.author.id, pacote)
+
+# Função para adicionar o pacote ao inventário do jogador
+def adicionar_inventario(user_id, pacote):
+    if user_id not in user_inventory:
+        user_inventory[user_id] = []
+    user_inventory[user_id].append(pacote)
+
+# Comando para verificar o inventário do jogador
+@bot.command(name="inventario")
+async def ver_inventario(ctx):
+    user_id = ctx.author.id
+    if user_id not in user_inventory or not user_inventory[user_id]:
+        await ctx.send(f"📦 {ctx.author.mention}, seu inventário está vazio.")
+    else:
+        pacotes = ", ".join(user_inventory[user_id])
+        await ctx.send(f"📦 {ctx.author.mention}, seu inventário: {pacotes}")
 
 # Rodar o bot
 TOKEN = os.getenv("TOKEN")
