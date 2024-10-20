@@ -134,14 +134,14 @@ async def mostrar_detalhes(ctx, pacote, valor, imagem):
     )
     embed.add_field(name="💵 **Preço**", value=f"R${valor}", inline=False)
     embed.set_image(url=imagem)
-    embed.set_footer(text="Reaja com 💲 para ver o preço ou ↩️ para voltar à lista de pacotes.")
+    embed.set_footer(text="Reaja com ✔️ para ver o preço ou ↩️ para voltar à lista de pacotes.")
 
     message = await ctx.send(embed=embed)
-    await message.add_reaction("💲")
+    await message.add_reaction("✔️")
     await message.add_reaction("↩️")
 
     def check_option(reaction, user):
-        return user == ctx.author and str(reaction.emoji) in ["💲", "↩️"] and reaction.message.id == message.id
+        return user == ctx.author and str(reaction.emoji) in ["✔️", "↩️"] and reaction.message.id == message.id
 
     try:
         # Espera o usuário escolher ver o preço ou voltar à lista
@@ -150,7 +150,7 @@ async def mostrar_detalhes(ctx, pacote, valor, imagem):
         # Apagar a mensagem anterior
         await message.delete()
 
-        if str(reaction.emoji) == "💲":
+        if str(reaction.emoji) == "✔️":
             await mostrar_pagamento(ctx, pacote, valor)
         elif str(reaction.emoji) == "↩️":
             await comprar_vip(ctx)
